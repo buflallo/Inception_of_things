@@ -1,0 +1,46 @@
+#cloud-config
+users:
+  - name: ubuntu
+    ssh_authorized_keys:
+    sudo: ALL=(ALL) NOPASSWD:TRUE
+    shell: /bin/bash
+
+#cloud-config
+
+hostname: myvm
+timezone: Europe/Madrid
+locale: en_US.UTF-8
+
+manage_etc_hosts: true
+
+package_update: true
+packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - docker.io
+
+users:
+  - name: hlachkar
+    groups: [docker, sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDIwj9XjA1VmnQ5U85cjxPSx1LqO8X/pcd7lEixbDSXBsabb0jNEo+GH0yaevmw9GpoYpYb5BNt44KkiXIErI9ZResNFur+yrtaTaVluKR82qoZ+PsDGYxXtTwMcz74jBRhgAlvWI6ucMxZI/ce/os1xOE/oYlkBqelvm8IxFuFSKrMaPU4C9GXeJ1+r6hfmggS57eWdt1tBZ5mHyZl8j1t0wlVTdklun0qeO3vmSRMIszGoamkxImyvLmBO//WUXQjoTKwE5w9px7jY9UmePmqoPqHrpczkSbK9mroBXnpnO+UQBTjuZg1MR6nXDCWgQDpSLPBLJtIyZhm2CTLEgo06497SxzZIKKC6crp0q2/gw88RZGmts2IfOAucHC5bCmfWN3wEttFVhKP8Sw0yK7kJxHZMRkHjgLG2AO2x0eGJPS6PIYU1ys3DZf8aBOdjO08ys6uMs+BdQj+DgJeJsebUhgOC2ODSPfaqkbxN0hzbkvLpMGGSZDesvLlF9VTw5tfAuphyiSqWFzG9YXvKfec5569Bp/Bv0jtFy79iJshXTCoiu6uwbwdnpVbs9bn+MnzGtSE40DwUXoa2SFIiv9yIOdbdTVIfci0x6PbLT8+NnhXQBrnDQBhfsOvm4l6fS9PWg8ddBFNx9HGIGdmcxMnzFeO5kbN2r6Di4Vk8nnCCw== hlachkar@c3r6p8.1337.ma
+
+write_files:
+  - path: /etc/systemd/system/getty@tty1.service.d/override.conf
+    content: |
+      [Service]
+      ExecStart=
+      ExecStart=-/sbin/agetty --autologin hlachkar --noclear %I $TERM
+
+runcmd:
+  - systemctl daemon-reexec
+  - systemctl daemon-reload
+  - systemctl restart getty@tty1
+  - systemctl enable docker
+
